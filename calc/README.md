@@ -16,4 +16,5 @@ Enter a value for y: 7
 The result is: 9
 $ 
 ```
-Voila!
+###### Bonus
+Watch Assembly code: `cat bin/<name_to_save>.s`
