@@ -1,0 +1,8 @@
+bin
+.vscode
+.idea
+.DS_Store
+CMakeFiles
+Makefile
+CMakeCache*
+cmake_*
