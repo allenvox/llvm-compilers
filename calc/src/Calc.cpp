@@ -12,8 +12,7 @@ static llvm::cl::opt<std::string>
           llvm::cl::desc("<input expression>"),
           llvm::cl::init(""));
 
-int main(int argc, const char **argv)
-{
+int main(int argc, const char **argv) {
     // Init LLVM
     llvm::InitLLVM X(argc, argv);
     llvm::cl::ParseCommandLineOptions(
@@ -26,7 +25,6 @@ int main(int argc, const char **argv)
     //for (Lex.next(token); token.getKind() != Token::TokenKind::eoi; Lex.next(token)) {
     //    std::cout << token.getKind() << ": " << token.getText().str() << "\n";
     //}
-    
 
     #if 1
     // Parse input and build abstract syntax tree
@@ -37,11 +35,10 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
-    //
-    // Perform symantic analysis:
+    // Perform semantic analysis:
     // Variable redeclaration: with a, a: 1+2
     // Undefined variable: a,b: 1 + c - d
-    //
+
     Sema Semantic;
     if (Semantic.semantic(Tree)) {
         llvm::errs() << "Semantic errors occured\n";
