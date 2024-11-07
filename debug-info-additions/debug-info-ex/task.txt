@@ -1,0 +1,23 @@
+* Скачать исходный код к лекции 5
+
+* Добавить генерацию кода для глобальных констант (CGModule.cpp, AST.h)
+
+  CGModule::run(ModuleDeclaration *Mod) {
+
+    else if (auto *Const =
+            llvm::dyn_cast<ConstantDeclaration>(Decl)) {
+      ...
+    }
+ 
+* Для каждой глобальной констаны реализовать генерацию отладочной информации
+  (СGModule.cpp, CGDebugInfo.cpp)
+
+  Dbg->emitGlobalConstant(Const, C);
+
+* ./tinylang -emit-llvm -g ./ex.mod
+
+@_t7Example1c = private constant i64, !dbg !0
+
+!0 = !DIGlobalVariableExpression(var: !1, expr: !DIExpression())
+!1 = distinct !DIGlobalVariable(name: "c", linkageName: "_t7Example1c", scope: !2, file: !2, line: 3, type: !3, isLocal: false, isDefinition: true)
+...
