@@ -1,0 +1,94 @@
+Chapter 5
+IR Generation for High-Level Language Constructs
+
+Lecture questions:
+* Translating aggregate data types and pointers to LLVM IR
+* Passing parameters to a function
+
+Current state of our compiler
+* INTEGER, BOOLEAN
+* PROCEDURE
+* WHILE
+
+Today
+* Parser: POINTER, ARRAY, RECORD
+* CodeGen: ARRAY, RECORD
+
+Arrays, structs, and pointers
+=============================
+
+Scalar types: INTEGER, BOOLEAN
+Aggregate, composite type -- multiple components
+-- array, list, tuple
+-- ADT: struct, record
+
+Array -- sequence of elements of the same type
+LLVM IR: [10 x i64], LLVM arrays are static, number of elements is constant
+Module-2: ARRAY [10] OF INTEGER
+
+Structures are composites of members with different types
+Module-2:
+  RECORD
+    x: REAL;
+    color: INTEGER;
+    y: REAL;
+  END;
+  // https://www.modula2.org/reference/typedeclar.php
+
+C:
+  struct { float x; long color; float y; };
+
+LLVM IR: 
+  -- only the type names are listed:
+  -- to access a member, a numerical index is used. Like arrays, the first element has an index number of 0
+  -- arrays and structs // https://llvm.org/docs/LangRef.html#t-aggregate
+  { float, i64, float }
+
+Packed structures (without padding bytes for alignment)
+  C: struct __attribute__((__packed__)) { float x; long long color; float y; }
+  LLVM: <{ float, i64, float }>
+
+LLVM nstructions for working with aggregate values
+It is not possible to refer to a single element of array-valued register %x as %x[3] (SSA form limitations)
+
+Read the second element of array (elem = x[1]):
+  %elem = extractvalue [10 x i64] %x, 1
+  // https://llvm.org/docs/LangRef.html#extractvalue-instruction 
+
+Write (x[0] = elem):
+  %xnew = insertvalue [10 x i64] %x, i64 %elem, 0
+  // https://llvm.org/docs/LangRef.html#insertvalue-instruction
+
+Read color from struct (member 2, type i64)
+%color = extractvalue { float, float, i64 } %pt, 2
+
+All global values in LLVM are expressed as pointers.
+@v = common global [8 x i64] zeroinitializer
+
+// Read v[1]
+%elem1 = load i64, ptr getelementptr inbounds ([8 x i64], ptr @v, i64 0, i64 1)
+  // getelementptr() -- returns address of element
+  // ptr @v -- base pointer 
+  // i64 0  -- dereferences the pointer
+  // i64 1  -- element index (do not need to be constant!)
+
+Modula-2 TYPE
+=============
+POINTER, ARRAY, RECORD
+
+TYPE MyArray = ARRRAY [10] of INTEGER;
+
+Parser::parseTypeDeclaration() -- pointer, array, record
+CGModule::convertType() -- maps AST Types (Modula-2) to LLVM IR Types (pointer, array, record)
+CGProcedure::mapType()
+
+// Create local arrays
+CGProcedure::run()
+
+// Read element
+Parser::parseSelectors(Expr *&E)
+CGProcedure::emitStmt(AssignmentStatement *Stmt)
+CGProcedure::emitExpr(Expr *E)
+
+
+

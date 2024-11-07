@@ -1,0 +1,5 @@
+digraph "CFG for 'getStruct' function" {
+	label="CFG for 'getStruct' function";
+
+	Node0x7fe1451361e0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870" fontname="Courier",label="{1:\l|  %2 = alloca %struct.Point, align 4\l  store i64 %0, ptr %2, align 4\l  %3 = getelementptr inbounds %struct.Point, ptr %2, i32 0, i32 0\l  %4 = load i32, ptr %3, align 4\l  %5 = call i32 (ptr, ...) @printf(ptr noundef @.str, i32 noundef %4)\l  ret void\l}"];
+}

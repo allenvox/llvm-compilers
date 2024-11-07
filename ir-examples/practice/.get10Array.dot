@@ -1,0 +1,5 @@
+digraph "CFG for 'get10Array' function" {
+	label="CFG for 'get10Array' function";
+
+	Node0x7fe145135c80 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870" fontname="Courier",label="{1:\l|  %2 = alloca ptr, align 8\l  store ptr %0, ptr %2, align 8\l  %3 = load ptr, ptr %2, align 8\l  %4 = getelementptr inbounds i32, ptr %3, i64 0\l  %5 = load i32, ptr %4, align 4\l  %6 = call i32 (ptr, ...) @printf(ptr noundef @.str, i32 noundef %5)\l  ret void\l}"];
+}
