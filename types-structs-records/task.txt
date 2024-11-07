@@ -1,0 +1,54 @@
+1. Скачайте с сайте транслятор TinyLang (лекция 4). Соберите проект.
+
+2. Опишите на Modula-2 тип данных массив. Построите LLVM IR для примера ниже:
+
+```
+MODULE ExampleMod;
+
+TYPE MyArray = ARRAY [10] OF INTEGER;
+VAR v: MyArray;
+
+PROCEDURE Main;
+BEGIN
+  v[2] := 100;
+END Main;
+
+END ExampleMod.
+```
+Найдите в синтаксическом анализаторе место разбора конструкции TYPE ARRAY
+Найдите в генераторе кода место генерации нового типа
+
+3. Опишите на Modula-2 запись Cursor. Построите LLVM IR.
+
+```
+MODULE RecEx;
+
+TYPE Cursor = RECORD
+  visible: BOOLEAN;
+  x, y: INTEGER
+END;
+VAR c: Cursor;
+
+PROCEDURE SetCenter();
+BEGIN
+  c.visible := TRUE;
+  c.x := 100;
+  c.y := 100;
+END SetCenter;
+END RecEx.
+```
+Найдите в синтаксическом анализаторе место разбора конструкции TYPE RECORD
+Найдите в генераторе кода место генерации нового типа RECORD
+Добавил ли транслятор байты выравнивания после поля visible?
+
+4. Опишите на С структуру и построите компилятором Clang LLVM IR:
+```
+struct C {
+  uint8_t visible;
+  uint64_t x, y;
+};
+```
+Добавил ли Clang байты выравнивания после поля visible? Почему?
+
+5. Как в TinyLang реализовать соблюдение ABI для выравнивание структур?
+
