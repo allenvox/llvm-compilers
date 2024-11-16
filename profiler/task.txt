@@ -1,0 +1,57 @@
+mark | description
+-----+------------------
+  ?  | pending question
+  *  | resolved question
+  -  | comment / answer
+  $  | shell input
+
+* Прочитать главу 7 (обобщил в статье)
+https://telegra.ph/Optimizaciya-LLVM-IR-Chapter-7-11-16
+
+* Собрать и изучить исходный код прохода (pass) PPProfiler.
+  Найти файл PPProfiler.dylib -- собранная дианмическая библиотека с проходом.
+$ mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=clang++ .. && make
+- ppprofiler/build/PPProfiler.dylib
+
+* Набрать код примера
+- ppprofiler/proc.c
+
+* Построить при помощи clang файл ppprofiler/prog.ll (LLVM IR)
+$ clang -S -emit-llvm -O1 prog.c
+
+* Запустить opt с выполнением прохода из PPProfiler.dylib для примера ppprofiler/prog.ll
+$ opt --load-pass-plugin=build/PPProfiler.dylib --passes="ppprofiler" --stats prog.ll -o prog_instr.bc
+# ppprofiler/prog_instr.bc -- оптимизированный код (трансформированный) после выполнения проходов,
+# bc-файл (bit-code) -- LLVM IR в бинарном формате 
+
+* Убедиться, что ppprofiler/prog_instr.bc содержит трансформации прохода PPProfiler (__ppp_enter, __ppp_exit):
+$ llvm-dis ./prog_instr.bc
+$ cat prog_inst.ll 
+; Function Attrs: nofree nounwind ssp uwtable
+define noundef i32 @main(i32 noundef %0, ptr nocapture noundef readnone %1) local_unnamed_addr #0 {
+  call void @__ppp_enter(ptr @0)
+  %3 = tail call i32 @puts(ptr nonnull dereferenceable(1) @str)
+  call void @__ppp_exit(ptr @0)
+  ret i32 0
+}
+
+* Подготовить файл runtime.c
+
+* Собрать prog_instr.bc c runtime.c:
+$ clang prog_instr.bc runtime.c -o prog
+
+* Запустить prog и вывести на экран созданный файл ppprofiler.csv
+  (лог вызова функций, который построил наш PPProfiler и runtime.c)
+$ cat ppprofile.csv
+enter|main|6770000|0x7ff7bb7101e0
+exit|main|6796000|0x7ff7bb7101e0
+
+* Вопрос: __ppp_exit вызывается перед инструкцией ret. Как расширить проход чтобы он регистрировал
+  выходы из функции при генерации исключения?
+- для инструкций...
+  invoke — вставлять вызов __ppp_exit в "нормальный" и "неудачный" пути (success/failure).
+  resume — вставлять вызов __ppp_exit перед передачей исключения.
+
+? Реализовать версию PPProfiler для регистрации входов и выходов из функций с двумя аргументами.
+
+? Реализовать версию CallProfiler для регистрации вызовов функции с заданным именем (например, getpid()).
