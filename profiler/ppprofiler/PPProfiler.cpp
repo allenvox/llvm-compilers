@@ -30,20 +30,24 @@ private:
 void PPProfilerIRPass::instrument(llvm::Function &F,
                                   Function *EnterFn,
                                   Function *ExitFn) {
+  // NEW - Игнорировать функции, которые не имеют ровно двух аргументов
+  if (F.arg_size() != 2)
+    return;
+
   ++NumOfFunc;
 
-  // Set the insertion point to begin of first block.
+  // Установить точку вставки в начало первого блока
   IRBuilder<> Builder(&*F.getEntryBlock().begin());
 
-  // Create global constant for the function name.
+  // Создать глобальную строку для имени функции
   GlobalVariable *FnName =
       Builder.CreateGlobalString(F.getName());
 
-  // Call the EnterFn at function entry.
+  // Вызов __ppp_enter в начале функции
   Builder.CreateCall(EnterFn->getFunctionType(), EnterFn,
                      {FnName});
 
-  // Find all Ret instructions, and call ExitFn before.
+  // Найти все инструкции return и вызвать __ppp_exit перед ними
   for (BasicBlock &BB : F) {
     for (Instruction &Inst : BB) {
       if (Inst.getOpcode() == Instruction::Ret) {
