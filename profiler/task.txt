@@ -14,7 +14,7 @@ $ mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=clang++ .. && make
 - ppprofiler/build/PPProfiler.dylib
 
 * Набрать код примера
-- ppprofiler/proc.c
+- ppprofiler/runtime/prog.c
 
 * Построить при помощи clang файл ppprofiler/prog.ll (LLVM IR)
 $ clang -S -emit-llvm -O1 prog.c
@@ -52,6 +52,26 @@ exit|main|6796000|0x7ff7bb7101e0
   invoke — вставлять вызов __ppp_exit в "нормальный" и "неудачный" пути (success/failure).
   resume — вставлять вызов __ppp_exit перед передачей исключения.
 
-? Реализовать версию PPProfiler для регистрации входов и выходов из функций с двумя аргументами.
+* Реализовать версию PPProfiler для регистрации входов и выходов из функций с двумя аргументами.
+- updated PPProfiler.cpp
+$ cd build && make && clang -S -emit-llvm -O1 ../runtime/prog_2args.c -o prog_2args.ll && \
+  opt --load-pass-plugin=PPProfiler.dylib --passes="ppprofiler" --stats prog_2args.ll -o prog_2args_instr.bc && \
+  llvm-dis prog_2args_instr.bc && cat prog_2args_instr.ll
+# 2 args
+; Function Attrs: nofree nounwind ssp uwtable
+define void @func_with_two_args(i32 noundef %0, i32 noundef %1) local_unnamed_addr #0 {
+  call void @__ppp_enter(ptr @0)
+  %3 = tail call i32 (ptr, ...) @printf(ptr noundef nonnull dereferenceable(1) @.str, i32 noundef %0, i32 noundef %1)
+  call void @__ppp_exit(ptr @0)
+  ret void
+}
+# 1 arg
+; Function Attrs: nofree nounwind ssp uwtable
+define void @func_with_one_arg(i32 noundef %0) local_unnamed_addr #0 {
+  %2 = tail call i32 (ptr, ...) @printf(ptr noundef nonnull dereferenceable(1) @.str.1, i32 noundef %0)
+  ret void
+}
 
-? Реализовать версию CallProfiler для регистрации вызовов функции с заданным именем (например, getpid()).
+* Реализовать версию CallProfiler для регистрации вызовов функции с заданным именем (например, getpid()).
+$ cd callprofiler && ./run.sh getpid > getpid.log && ./run.sh printf > printf.log
+$ cat *.log
