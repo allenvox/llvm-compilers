@@ -21,18 +21,18 @@ public:
   run(llvm::Module &M, llvm::ModuleAnalysisManager &AM);
 
 private:
-  void instrument(llvm::Function &F,
+  int instrument(llvm::Function &F,
                   llvm::Function *EnterFn,
                   llvm::Function *ExitFn);
 };
 } // namespace
 
-void PPProfilerIRPass::instrument(llvm::Function &F,
+int PPProfilerIRPass::instrument(llvm::Function &F,
                                   Function *EnterFn,
                                   Function *ExitFn) {
   // NEW - Игнорировать функции, которые не имеют ровно двух аргументов
   if (F.arg_size() != 2)
-    return;
+    return 0;
 
   ++NumOfFunc;
 
@@ -57,6 +57,7 @@ void PPProfilerIRPass::instrument(llvm::Function &F,
       }
     }
   }
+  return 1;
 }
 
 PreservedAnalyses
@@ -81,12 +82,13 @@ PPProfilerIRPass::run(Module &M,
       EnterExitFty, GlobalValue::ExternalLinkage,
       "__ppp_exit", M);
 
+  int counter = 0;
   // Call enter function.
   for (auto &F : M.functions()) {
     if (!F.isDeclaration() && F.hasName())
-      instrument(F, EnterFn, ExitFn);
+      counter += instrument(F, EnterFn, ExitFn);
   }
-  return PreservedAnalyses::none();
+  return counter ? PreservedAnalyses::none() : PreservedAnalyses::all();;
 }
 
 void RegisterCB(PassBuilder &PB) {
