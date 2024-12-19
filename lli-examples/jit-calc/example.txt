@@ -1,0 +1,25 @@
+JIT calc > def f(x) = x + 1
+; ModuleID = 'JIT calc.expr'
+source_filename = "JIT calc.expr"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+
+define i32 @f(i32 %x) {
+entry:
+  %0 = add nsw i32 %x, 1
+  ret i32 %0
+}
+JIT calc > f(3)
+Attempting to evaluate expression:
+; ModuleID = 'JIT calc.expr'
+source_filename = "JIT calc.expr"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+
+define i32 @calc_expr_func() {
+entry:
+  %calc_expr_res = call i32 @f(i32 3)
+  ret i32 %calc_expr_res
+}
+
+declare i32 @f(i32)
+User defined function evaluated to: 4
+JIT calc > quit
