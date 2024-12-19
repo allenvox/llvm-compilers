@@ -1,7 +1,9 @@
 #include "CodeGen.h"
 #include "Parser.h"
 #include "Sema.h"
+#include "llvm/ExecutionEngine/Orc/DebugUtils.h"
 #include "llvm/ExecutionEngine/Orc/LLJIT.h"
+#include "llvm/ExecutionEngine/Orc/ObjectTransformLayer.h"
 #include "llvm/Support/InitLLVM.h"
 #include "llvm/Support/TargetSelect.h"
 #include <iostream>
@@ -10,6 +12,21 @@ using namespace llvm;
 using namespace llvm::orc;
 
 ExitOnError ExitOnErr;
+
+cl::opt<bool> DumpJITdObjects("dump-jitted-objects",
+                             cl::desc("dump jitted objects"), 
+                             cl::Optional,
+                             cl::init(true));
+
+cl::opt<std::string> DumpDir("dump-dir",
+                            cl::desc("directory to dump objects to"),
+                            cl::Optional, 
+                            cl::init("."));
+
+cl::opt<std::string> DumpFileStem("dump-file-stem",
+                                 cl::desc("Override default dump names"),
+                                 cl::Optional, 
+                                 cl::init("dumped"));
 
 int main(int argc, const char **argv) {
   llvm::InitLLVM X(argc, argv);
@@ -95,6 +112,11 @@ int main(int argc, const char **argv) {
       int (*UserFnCall)() = CalcExprCall.toPtr<int (*)()>();
       outs() << "User defined function evaluated to: " << UserFnCall() << "\n";
       // Free the memory that was previously allocated.
+
+      // Dump the JIT'ed objects
+      if (DumpJITdObjects)
+        JIT->getObjTransformLayer().setTransform(DumpObjects(DumpDir, DumpFileStem));
+
       ExitOnErr(RT->remove());
     }
   }
