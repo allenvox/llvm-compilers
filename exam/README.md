@@ -1,3 +1,7 @@
+[questions summary](summary.md)<br>
+
+---
+
 [1 - Архитектура Clang](1.md)<br>
 
 [2 - Общее описание LLVM IR](2.md)<br>
